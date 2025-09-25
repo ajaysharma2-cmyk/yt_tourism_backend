@@ -16,19 +16,32 @@ app.use(express.json());
 app.use('/api', mainRouter);
 
 app.get('/', (req, res) => {
-  res.send('API is running');
+  res.json({ 
+    message: 'YT Tourism Backend API is running',
+    version: '1.0.0',
+    endpoints: {
+      feedback: '/api/feedback'
+    }
+  });
 });
 
 app.use(errorHandler);
 
+// Connect to MongoDB
 mongoose.connect(MONGO_URI)
   .then(() => {
     console.log("Connected to MongoDB with Mongoose!");
-    app.listen(PORT, () => {
-      console.log(`Server running on port ${PORT}`);
-    });
   })
   .catch((err) => {
     console.error('Failed to connect to MongoDB', err);
-    process.exit(1);
   });
+
+// Export for Vercel
+module.exports = app;
+
+// Start server only if not in Vercel environment
+if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+  });
+}
